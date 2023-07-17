@@ -14,25 +14,15 @@ const service = new AuthService();
 const jwtService = new JwtService();
 
 router.post('/login', LoginValidator, InputValidationMiddleware, async(req:Request, res: Response) => {
-  const secret =  process.env.JWT_SECRET;
-  if(!secret){
-    console.log(`Error to get secret`);
-    process.exit(1);
-  }
   const data = await service.login(req.body);
   if(!data || typeof data === "boolean"){
     return res.status(401).send('Password or login incorrect')
   }
-  res.cookie('refreshToken', data.refreshToken, {httpOnly: true, secure: true});
+  await res.cookie('refreshToken', data.refreshToken, {httpOnly: true, secure: true});
   res.status(200).send({ accessToken: data.accessToken})
 })
 
 router.post('/refresh-token', async(req: Request, res: Response) => {
-  const secret =  process.env.JWT_SECRET;
-  if(!secret){
-    console.log(`Error to get secret`);
-    process.exit(1);
-  }
   const refreshToken = req.cookies.refreshToken;
   if(!refreshToken){
     return res.status(401).send();
@@ -45,11 +35,12 @@ router.post('/refresh-token', async(req: Request, res: Response) => {
   res.status(200).send({ accessToken: data.accessToken})
 })
 
-router.post('logout', (req: Request, res: Response) => {
+router.post('/logout', (req: Request, res: Response) => {
   if(!CheckToken(req.cookies.refreshToken)){
     return res.status(401).send();
   }
-  res.clearCookie('refreshToken').sendStatus(204);
+  res.clearCookie('refreshToken');
+  res.sendStatus(204);
 })
 
 router.get('/me', AuthMiddleware, async(req: Request, res: Response) => {

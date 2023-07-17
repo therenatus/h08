@@ -10,6 +10,7 @@ import {StatusEnum} from "../types/status.enum";
 import {ITokenResponse} from "../types/token-response.interface";
 import {JwtService} from "../helpers/jwtService";
 import jwt from "jsonwebtoken";
+import {CheckToken} from "../helpers/check-token";
 
 
 const Repository = new UserRepository();
@@ -25,18 +26,15 @@ export class AuthService {
     if(!validPassword){
       return false;
     }
-    return await _generateTokens(user.accountData.id)
+    return  await _generateTokens(user.accountData.id);
   }
 
   async refreshToken(token: string): Promise<ITokenResponse | null> {
-    const { exp, id } = jwt.decode(token) as {
-      exp: number;
-      id: string
-    };
-    if(Date.now() >= exp*1000){
+    const id = CheckToken(token);
+    if(!id){
       return null;
     }
-    return await _generateTokens(id);
+    return await _generateTokens(id)
   }
 
   async getMe(userID: string | ObjectId): Promise<IUser | boolean> {
@@ -93,5 +91,5 @@ export class AuthService {
 const _generateTokens = async(id: string): Promise<ITokenResponse> =>{
   const accessToken = await jwtService.generateJwt(id, '10s');
   const refreshToken = await jwtService.generateJwt(id, '20s');
-  return { accessToken, refreshToken }
+  return { accessToken: accessToken, refreshToken: refreshToken }
 }

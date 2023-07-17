@@ -1,18 +1,20 @@
 import jwt from "jsonwebtoken";
 
-export const CheckToken = (token: string | null): boolean => {
+export const CheckToken = (token: string | null): string | null => {
   if(!token){
-    return false;
+    return null;
   }
-  const { exp, id } = jwt.decode(token) as {
-    exp: number;
-    id: string
-  };
-  if(!exp || !id){
-    return false
+  const secret =  process.env.JWT_SECRET;
+  if(!secret){
+    console.log(`Error to get secret`);
+    process.exit(1);
   }
-  if(Date.now() >= exp*1000){
-    return false;
+  try {
+    const { id } = jwt.verify(token, secret) as {
+      id: string
+    };
+    return id;
+  } catch {
+    return null
   }
-  return true;
 }
