@@ -32,7 +32,7 @@ export async function FindAllWithCount<T>(query: IQuery, collection: Collection<
   console.log(filter)
   const total = await collection.countDocuments(filter);
   const data =  await collection
-    .find(filter, {projection: { hashPassword: 0}})
+    .find(filter, {projection: { 'accountData.hashPassword': 0}})
     .sort(sortOptions)
     .skip(+pageSize * (pageNumber - 1))
     .limit(+pageSize)

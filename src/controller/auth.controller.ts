@@ -18,7 +18,7 @@ router.post('/login', LoginValidator, InputValidationMiddleware, async(req:Reque
   if(!data || typeof data === "boolean"){
     return res.status(401).send('Password or login incorrect')
   }
-  await res.cookie('refreshToken', data.refreshToken, {httpOnly: true, secure: true});
+  res.cookie('refreshToken', data.refreshToken, {httpOnly: true, secure: true});
   res.status(200).send({ accessToken: data.accessToken})
 })
 
@@ -58,7 +58,7 @@ router.get('/me', AuthMiddleware, async(req: Request, res: Response) => {
 
 
 router.post('/registration', CreateUserValidator, InputValidationMiddleware, async(req: Request, res: Response) => {
-  const mail = await service.registration(req.body);
+  await service.registration(req.body);
   return res.status(204).send()
 })
 

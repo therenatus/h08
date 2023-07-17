@@ -38,7 +38,7 @@ export class UserRepository {
     if(!ObjectId.isValid(id)){
       filter = {'accountData.id': id}
     }
-    return await userCollection.findOne(filter, {projection: { _id: 0, hashPassword: 0}});
+    return await userCollection.findOne(filter, {projection: { _id: 0, 'accountData.hashPassword': 0}});
   }
   async  create(body: UserDBType): Promise<ObjectId> {
     const { insertedId } = await userCollection.insertOne(body);
