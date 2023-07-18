@@ -34,13 +34,11 @@ export class AuthService {
 
   async refreshToken(token: string): Promise<ITokenResponse | null> {
     const id = CheckToken(token);
-    if(!id){
+    const validToken = await tokenRepository.checkFromBlackList(token);
+    if(!id || !validToken){
       return null;
     }
-    const validToken = await tokenRepository.addToBlackList(token);
-    if(!validToken){
-      return null;
-    }
+    await tokenRepository.addToBlackList(token);
     return await _generateTokens(id)
   }
 
