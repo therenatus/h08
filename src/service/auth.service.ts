@@ -81,6 +81,10 @@ export class AuthService {
     if(!CheckToken(token)){
       return false;
     }
+    const validToken = await tokenRepository.checkFromBlackList(token);
+    if(!validToken){
+      return false;
+    }
     await tokenRepository.addToBlackList(token);
     return true;
   }
