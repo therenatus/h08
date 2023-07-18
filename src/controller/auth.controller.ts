@@ -35,8 +35,13 @@ router.post('/refresh-token', async(req: Request, res: Response) => {
   res.status(200).send({ accessToken: data.accessToken})
 })
 
-router.post('/logout', (req: Request, res: Response) => {
-  if(!CheckToken(req.cookies.refreshToken)){
+router.post('/logout', async(req: Request, res: Response) => {
+  const refreshToken = req.cookies.refreshToken;
+  if(!refreshToken){
+    return res.status(401).send();
+  }
+  const data = await service.logout(refreshToken);
+  if(!data){
     return res.status(401).send();
   }
   res.clearCookie('refreshToken');

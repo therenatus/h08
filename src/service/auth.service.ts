@@ -11,11 +11,14 @@ import {ITokenResponse} from "../types/token-response.interface";
 import {JwtService} from "../helpers/jwtService";
 import jwt from "jsonwebtoken";
 import {CheckToken} from "../helpers/check-token";
+import {TokenRepository} from "../repositories/token.repository";
+import {tokenCollection} from "../index";
 
 
 const Repository = new UserRepository();
 const emailManager = new EmailManagers();
 const jwtService = new JwtService();
+const tokenRepository = new TokenRepository();
 export class AuthService {
   async login (body: any): Promise<ITokenResponse | boolean> {
     const user = await Repository.getOne(body.loginOrEmail);
@@ -32,6 +35,10 @@ export class AuthService {
   async refreshToken(token: string): Promise<ITokenResponse | null> {
     const id = CheckToken(token);
     if(!id){
+      return null;
+    }
+    const validToken = await tokenRepository.addToBlackList(token);
+    if(!validToken){
       return null;
     }
     return await _generateTokens(id)
@@ -71,6 +78,14 @@ export class AuthService {
     return createResult;
   }
 
+
+  async logout(token: string): Promise<boolean> {
+    if(!CheckToken(token)){
+      return false;
+    }
+    await tokenRepository.addToBlackList(token);
+    return true;
+  }
   async resendEmail(email: string) {
     const user = await Repository.getOneByEmail(email);
     const code = uuidv4();

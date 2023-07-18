@@ -25,17 +25,17 @@ const client = new MongoClient(mongoURI);
 const blogDB = client.db('blogs');
 const postDB = client.db('posts');
 const userDB = client.db('users');
+const tokenDB = client.db('token');
 const commentDB = client.db('comment');
 
 export const blogCollection = blogDB.collection<IBlog>('blogs');
 export const postCollection = postDB.collection<IPost>("posts");
 export const userCollection = userDB.collection<UserDBType>('users');
 export const commentCollection = commentDB.collection<IComment>("comment");
+export const tokenCollection = tokenDB.collection<{token: string}>("token");
 
 app.use(bodyParser.json());
 app.use(cookieParser());
-// app.post('*', AuthMiddleware);
-// app.put('*', AuthMiddleware);
 app.use('/api', router);
 
 const start = async() => {
